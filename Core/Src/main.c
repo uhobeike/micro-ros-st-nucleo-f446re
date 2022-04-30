@@ -357,7 +357,7 @@ void StartDefaultTask(void *argument)
 	  rclc_support_init(&support, 0, NULL, &allocator);
 
 	  // create node
-	  rclc_node_init_default(&node, "cubeide_node", "", &support);
+	  rclc_node_init_default(&node, "f446re_node", "", &support);
 
 	  // create publisher
 	  rclc_publisher_init_best_effort(
