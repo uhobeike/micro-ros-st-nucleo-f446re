@@ -154,6 +154,6 @@ It is necessary to press the reset button on the NUCLEO-F446RE after the executi
 
 # Reference
 
-##  [micro-ROS/micro-ROS-demos](https://github.com/micro-ROS/micro-ROS-demos)
-##  [micro-ROS/micro_ros_setup](https://github.com/micro-ROS/micro_ros_setup)
-##  [micro-ROS/micro_ros_stm32cubemx_utils](https://github.com/micro-ROS/micro_ros_stm32cubemx_utils)
+### [micro-ROS/micro-ROS-demos](https://github.com/micro-ROS/micro-ROS-demos)
+### [micro-ROS/micro_ros_setup](https://github.com/micro-ROS/micro_ros_setup)
+### [micro-ROS/micro_ros_stm32cubemx_utils](https://github.com/micro-ROS/micro_ros_stm32cubemx_utils)
