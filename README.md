@@ -17,11 +17,15 @@ This package is designed to quickly and easily run micro-ROS on a Nucleo-F446RE 
 
 # Quick start
 1 必要なソフトウェアのインストール
-　・Docker
-　・stm32cubeide
+* Docker　 
+ * stm32cubeide
 
 2 本リポジトリの使用方法
-　・クローン
-　・プロジェクトの登録
+* クローン
+* プロジェクトの登録
 
-3　
+3 ビルドと実行
+
+4 ようこそmicro-ROS
+
+# Reference
