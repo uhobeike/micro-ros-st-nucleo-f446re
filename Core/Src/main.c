@@ -31,8 +31,8 @@
 #include <rmw_microxrcedds_c/config.h>
 #include <rmw_microros/rmw_microros.h>
 
-#include <std_msgs/msg/int32.h>
 #include <std_msgs/msg/string.h>
+#include <sensor_msgs/msg/imu.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -52,8 +52,10 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-rcl_publisher_t publisher;
-std_msgs__msg__String pub_msg;
+rcl_publisher_t publisher_string;
+rcl_publisher_t publisher_imu;
+std_msgs__msg__String pub_str_msg;
+sensor_msgs__msg__Imu pub_imu_msg;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -85,15 +87,23 @@ void StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void subscription_callback(const void * msgin)
+void subscription_str_callback(const void * msgin)
 {
   std_msgs__msg__String * msg = (std_msgs__msg__String *)msgin;
-  pub_msg = *msg;
+  pub_str_msg = *msg;
   char str[100];
   strcpy(str, msg->data.data);
-  sprintf(pub_msg.data.data, "F446RE heard: %s", str);
-  pub_msg.data.size = strlen(pub_msg.data.data);
-  rcl_publish(&publisher, &pub_msg, NULL);
+  sprintf(pub_str_msg.data.data, "F446RE heard: %s", str);
+  pub_str_msg.data.size = strlen(pub_str_msg.data.data);
+  rcl_publish(&publisher_string, &pub_str_msg, NULL);
+  debug_led();
+}
+
+void subscription_imu_callback(const void * msgin)
+{
+  sensor_msgs__msg__Imu * msg = (sensor_msgs__msg__Imu *)msgin;
+  pub_imu_msg = *msg;
+  rcl_publish(&publisher_imu, &pub_imu_msg, NULL);
   debug_led();
 }
 
@@ -103,11 +113,6 @@ void debug_led()
   HAL_Delay(200); //200ms待つ
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //LEDを消灯
   HAL_Delay(200);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-  HAL_Delay(200);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-  HAL_Delay(200);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 }
 /* USER CODE END 0 */
 
@@ -355,6 +360,9 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
   // micro-ROS configuration
+  char test_array[ARRAY_LEN];
+  memset(test_array,'z',ARRAY_LEN);
+
   rmw_uros_set_custom_transport(
     true,
     (void *) &huart2,
@@ -373,14 +381,13 @@ void StartDefaultTask(void *argument)
     printf("Error on default allocators (line %d)\n", __LINE__);
   }
 
-  rcl_subscription_t subscriber;
-  std_msgs__msg__String sub_msg;
+  rcl_subscription_t subscriber_string, subscriber_imu;
+  std_msgs__msg__String sub_str_msg;
+  sensor_msgs__msg__Imu sub_imu_msg;
   rclc_support_t support;
   rcl_allocator_t allocator;
   rcl_node_t node;
-  char test_array[ARRAY_LEN];
 
-  memset(test_array,'z',ARRAY_LEN);
   allocator = rcl_get_default_allocator();
 
   // create init_options
@@ -391,35 +398,61 @@ void StartDefaultTask(void *argument)
 
   // create publisher
   RCCHECK(rclc_publisher_init_best_effort(
-    &publisher,
+    &publisher_string,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
     "/f446re_string_publisher"));
 
+  RCCHECK(rclc_publisher_init_best_effort(
+    &publisher_imu,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
+    "/f446re_imu_publisher"));
+
   // create subscriber
   RCCHECK(rclc_subscription_init_default(
-    &subscriber,
+    &subscriber_string,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
     "/f446re_string_subscriber"));
 
+  RCCHECK(rclc_subscription_init_default(
+    &subscriber_imu,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
+    "/imu/data_raw"));
+
   // create executor
   rclc_executor_t executor = rclc_executor_get_zero_initialized_executor();
-  RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator));
-  RCCHECK(rclc_executor_add_subscription(&executor, &subscriber, &sub_msg, &subscription_callback, ON_NEW_DATA));
+  RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
+  RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_string, &sub_str_msg, &subscription_str_callback, ON_NEW_DATA));
+  RCCHECK(rclc_executor_add_subscription(&executor, &subscriber_imu, &sub_imu_msg, &subscription_imu_callback, ON_NEW_DATA));
 
-  pub_msg.data.data = (char * ) malloc(ARRAY_LEN * sizeof(char));
-  pub_msg.data.size = 0;
-  pub_msg.data.capacity = ARRAY_LEN;
+  // initialize message memory
+  pub_str_msg.data.data = (char * ) malloc(ARRAY_LEN * sizeof(char));
+  pub_str_msg.data.size = 0;
+  pub_str_msg.data.capacity = ARRAY_LEN;
 
-  sub_msg.data.data = (char * ) malloc(ARRAY_LEN * sizeof(char));
-  sub_msg.data.size = 0;
-  sub_msg.data.capacity = ARRAY_LEN;
+  pub_imu_msg.header.frame_id.capacity = 100;
+  pub_imu_msg.header.frame_id.data =(char * ) malloc(100 * sizeof(char));
+  pub_imu_msg.header.frame_id.size = 0;
 
+  sub_str_msg.data.data = (char * ) malloc(ARRAY_LEN * sizeof(char));
+  sub_str_msg.data.size = 0;
+  sub_str_msg.data.capacity = ARRAY_LEN;
+
+  sub_imu_msg.header.frame_id.capacity = 100;
+  sub_imu_msg.header.frame_id.data =(char * ) malloc(100 * sizeof(char));
+  sub_imu_msg.header.frame_id.size = 0;
+
+  // execute subscriber
   rclc_executor_spin(&executor);
 
-  RCCHECK(rcl_publisher_fini(&publisher, &node))
-  RCCHECK(rcl_subscription_fini(&subscriber, &node));
+  // cleaning Up
+  RCCHECK(rcl_publisher_fini(&publisher_string, &node));
+  RCCHECK(rcl_publisher_fini(&publisher_imu, &node));
+  RCCHECK(rcl_subscription_fini(&subscriber_string, &node));
+  RCCHECK(rcl_subscription_fini(&subscriber_imu, &node));
   RCCHECK(rcl_node_fini(&node));
   /* USER CODE END 5 */
 }
