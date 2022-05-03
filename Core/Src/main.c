@@ -111,7 +111,7 @@ void debug_led()
 {
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET); //LED turned on
   HAL_Delay(200); //Wait for 200[ms]
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //turned off
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //LED turned off
   HAL_Delay(200);
 }
 /* USER CODE END 0 */
