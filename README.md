@@ -4,6 +4,12 @@
 # Intoroduction
 This package is designed to quickly and easily run micro-ROS on a Nucleo-F446RE board!
 
+Sample code is provided as well as environment construction. Once the environment has been built, you can immediately get it running and try it out.
+
+[The sample code is ready to run publish and subscribe on `std_msgs/string` and `sensor_msgs/imu`!](https://github.com/uhobeike/micro-ros-st-nucleo-f446re/blob/7b8653d8ea591b9723265c478f49e386b43d39ba/Core/Src/main.c#L399-L423)
+
+
+
 # Required Environment
 | Software           | Required Version          | 
 | ------------------ | ------------------------- | 
@@ -134,13 +140,23 @@ ROS2 communication between PC and microcontroller using Docker environment.
 * Execute micro-ROS!
 
 ```
-docker run -it --privileged  --net=host --name micro-ros ubeike/micro-ros-agent:galactic
+docker run -it --privileged --net=host --name micro-ros ubeike/micro-ros-agent:galactic
 
 # Executed at each terminal.
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0
+
+# If you successfully subscribe, the LED(LD2) on the F446RE will flash!
+
+# std_msgs/string pub/sub
 ros2 topic echo /f446re_string_publisher
 ros2 topic pub --once /f446re_string_subscriber std_msgs/msg/String "{data: Hello! micro-ROS}"
+
+# sensor_msgs/imu pub/sub
+ros2 topic echo /f446re_imu_publisher
+ros2 topic pub --once /imu/data_raw sensor_msgs/msg/Imu
 ```
+
+
 
 * Important point
 
@@ -150,6 +166,12 @@ It is necessary to press the reset button on the NUCLEO-F446RE after the executi
 
   </details>
  
+</details>
+<details>
+<summary>5. Let's develop</summary>
+
+[This is the part of the micro-ROS code](https://github.com/uhobeike/micro-ros-st-nucleo-f446re/blob/7b8653d8ea591b9723265c478f49e386b43d39ba/Core/Src/main.c#L359-L458) that serves as the F446RE node. Update this one to do what you want!
+
 </details>
 
 # Reference
