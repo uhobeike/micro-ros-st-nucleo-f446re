@@ -94,6 +94,20 @@ void subscription_callback(const void * msgin)
   sprintf(pub_msg.data.data, "F446RE heard: %s", str);
   pub_msg.data.size = strlen(pub_msg.data.data);
   rcl_publish(&publisher, &pub_msg, NULL);
+  debug_led();
+}
+
+void debug_led()
+{
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);   //LEDを点灯
+  HAL_Delay(200); //200ms待つ
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //LEDを消灯
+  HAL_Delay(200);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+  HAL_Delay(200);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+  HAL_Delay(200);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 }
 /* USER CODE END 0 */
 
@@ -359,7 +373,6 @@ void StartDefaultTask(void *argument)
     printf("Error on default allocators (line %d)\n", __LINE__);
   }
 
-  // micro-ROS app
   rcl_subscription_t subscriber;
   std_msgs__msg__String sub_msg;
   rclc_support_t support;
@@ -371,17 +384,17 @@ void StartDefaultTask(void *argument)
   allocator = rcl_get_default_allocator();
 
   // create init_options
-  rclc_support_init(&support, 0, NULL, &allocator);
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
 
   // create node
-  rclc_node_init_default(&node, "f446re_node", "", &support);
+  RCCHECK(rclc_node_init_default(&node, "f446re_node", "", &support));
 
   // create publisher
-  rclc_publisher_init_best_effort(
+  RCCHECK(rclc_publisher_init_best_effort(
     &publisher,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
-    "/f446re_string_publisher");
+    "/f446re_string_publisher"));
 
   // create subscriber
   RCCHECK(rclc_subscription_init_default(
