@@ -145,7 +145,7 @@ docker run -it --privileged --net=host --name micro-ros ubeike/micro-ros-agent:g
 # Executed at each terminal.
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0
 
-# If you successfully subscribe, the LED on the F446RE will flash!
+# If you successfully subscribe, the LED(LD2) on the F446RE will flash!
 
 # std_msgs/string pub/sub
 ros2 topic echo /f446re_string_publisher
