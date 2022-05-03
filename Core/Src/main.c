@@ -109,9 +109,9 @@ void subscription_imu_callback(const void * msgin)
 
 void debug_led()
 {
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);   //LEDを点灯
-  HAL_Delay(200); //200ms待つ
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //LEDを消灯
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET); //LED turned on
+  HAL_Delay(200); //Wait for 200[ms]
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); //turned off
   HAL_Delay(200);
 }
 /* USER CODE END 0 */
