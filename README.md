@@ -6,7 +6,7 @@ This package is designed to quickly and easily run micro-ROS on a Nucleo-F446RE 
 
 Sample code is provided as well as environment construction. Once the environment has been built, you can immediately get it running and try it out.
 
-[The sample code is ready to run publish and subscribe on `std_msgs/string` and `sensor_msgs/imu`!](https://github.com/uhobeike/micro-ros-st-nucleo-f446re/blob/7b8653d8ea591b9723265c478f49e386b43d39ba/Core/Src/main.c#L399-L423)
+[The sample code is ready to run publish and subscribe on `std_msgs/string` and `sensor_msgs/imu`!](https://github.com/uhobeike/inverted_pendulum_robot/blob/7b8653d8ea591b9723265c478f49e386b43d39ba/Core/Src/main.c#L399-L423)
 
 
 
@@ -62,10 +62,10 @@ Please download from [this site](https://www.st.com/ja/development-tools/stm32cu
   <details open>
   <summary>git clone</summary>
 
-* Clone  [uhobeike/micro-ros-st-nucleo-f446re](https://github.com/uhobeike/micro-ros-st-nucleo-f446re/tree/update/readme)
+* Clone  [uhobeike/inverted_pendulum_robot](https://github.com/uhobeike/inverted_pendulum_robot/tree/update/readme)
 
 ```
-git clone --recursive https://github.com/uhobeike/micro-ros-st-nucleo-f446re.git
+git clone --recursive https://github.com/uhobeike/inverted_pendulum_robot.git
 ```
 
   </details>
@@ -80,7 +80,7 @@ git clone --recursive https://github.com/uhobeike/micro-ros-st-nucleo-f446re.git
 
 ![launch-stm32cubeide](https://i.gyazo.com/eee876312d397f9a11bfdf930d57c511.png)
 
-* Import project (micro-ros-st-nucleo-f446re)
+* Import project (inverted_pendulum_robot)
 
 ![import-project1](https://i.gyazo.com/a2b8fa88a38b3ef9828b5834cbf1713f.png)
 
@@ -171,7 +171,7 @@ It is necessary to press the reset button on the NUCLEO-F446RE after the executi
 <details>
 <summary>5. Let's develop</summary>
 
-[This is the part of the micro-ROS code](https://github.com/uhobeike/micro-ros-st-nucleo-f446re/blob/7b8653d8ea591b9723265c478f49e386b43d39ba/Core/Src/main.c#L359-L458) that serves as the F446RE node. Update this one to do what you want!
+[This is the part of the micro-ROS code](https://github.com/uhobeike/inverted_pendulum_robot/blob/7b8653d8ea591b9723265c478f49e386b43d39ba/Core/Src/main.c#L359-L458) that serves as the F446RE node. Update this one to do what you want!
 
 </details>
 

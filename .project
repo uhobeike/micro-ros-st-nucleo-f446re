@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>micro-ros-st-nucleo-f446re</name>
+	<name>inverted_pendulum_robot</name>
 	<comment></comment>
 	<projects>
 	</projects>
