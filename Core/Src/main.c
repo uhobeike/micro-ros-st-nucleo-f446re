@@ -32,6 +32,7 @@
 #include <rmw_microros/rmw_microros.h>
 
 #include <std_msgs/msg/u_int16.h>
+#include <std_msgs/msg/float32.h>
 #include <std_msgs/msg/string.h>
 #include <sensor_msgs/msg/imu.h>
 
@@ -57,7 +58,8 @@
 #define GEAR_RATIO 70
 #define CPR 64 			/*Count per rotation*/
 
-const float move_per_pulse = CPR * GEAR_RATIO / WHEEL_DIA * PI; /*[m]*/
+const float move_per_pulse = (WHEEL_DIA * PI) / (CPR * GEAR_RATIO); /*[m]*/
+const float sampling_time = 0.02; /*0.02[s]*/
 
 float wheel_speed = 0.0;
 /* USER CODE END PD */
@@ -65,16 +67,18 @@ float wheel_speed = 0.0;
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 rcl_publisher_t publish_enc_cnt;
+rcl_publisher_t publish_wheel_speed;
 rcl_publisher_t publisher_string;
 rcl_publisher_t publisher_imu;
 std_msgs__msg__UInt16 pub_enc_cnt_msg;
+std_msgs__msg__Float32 pub_wheel_speed_msg;
 std_msgs__msg__String pub_str_msg;
 sensor_msgs__msg__Imu pub_imu_msg;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
  TIM_HandleTypeDef htim3;
-TIM_HandleTypeDef htim10;
+TIM_HandleTypeDef htim6;
 
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_rx;
@@ -97,7 +101,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM3_Init(void);
-static void MX_TIM10_Init(void);
+static void MX_TIM6_Init(void);
 void StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -112,6 +116,9 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time)
 	if (timer != NULL) {
 		pub_enc_cnt_msg.data = TIM3 -> CNT;
 		RCSOFTCHECK(rcl_publish(&publish_enc_cnt, &pub_enc_cnt_msg, NULL));
+
+		pub_wheel_speed_msg.data = wheel_speed;
+		RCSOFTCHECK(rcl_publish(&publish_wheel_speed, &pub_wheel_speed_msg, NULL));
 	}
 }
 
@@ -146,12 +153,13 @@ void debug_led()
 int get_encoder(void){
 	int16_t count = 0;
 	uint16_t enc_buff = TIM3 -> CNT;
+
 	TIM3 -> CNT = 0;
 
 	if(enc_buff > 32767){
-		count = (int16_t)enc_buff;
+		count = (int16_t)enc_buff * -1; //-1倍はCWがプラスになるよう調整用
 	}else{
-		count = (int16_t)enc_buff;
+		count = (int16_t)enc_buff * -1; //-1倍はCCWがマイナスになるよう調整用
 	}
 	return count;
 }
@@ -159,8 +167,8 @@ int get_encoder(void){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	//タイマー割り込みコールバック関数
-	if(htim == &htim10){
-
+	if(htim == &htim6){ //タイヤの速度計算(Timer10割り込み処理)
+		wheel_speed = (move_per_pulse * get_encoder()) / sampling_time;
 	}
 }
 /* USER CODE END 0 */
@@ -196,14 +204,12 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_TIM3_Init();
-  MX_TIM10_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-//  setbuf(stdout,NULL);
-  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-  HAL_TIM_Base_Start_IT(&htim10);
 
-  int cnt;
-  char scnt[100];
+  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+  HAL_TIM_Base_Start_IT(&htim6);
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -245,9 +251,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	 cnt = TIM3 -> CNT;
-//	 sprintf(scnt, "%d\r\n", cnt);
-//	 HAL_UART_Transmit( &huart2, scnt, strlen(scnt) + 1, 0xFFFF);
 	 HAL_Delay( 100 );
     /* USER CODE END WHILE */
 
@@ -353,33 +356,40 @@ static void MX_TIM3_Init(void)
 }
 
 /**
-  * @brief TIM10 Initialization Function
+  * @brief TIM6 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_TIM10_Init(void)
+static void MX_TIM6_Init(void)
 {
 
-  /* USER CODE BEGIN TIM10_Init 0 */
+  /* USER CODE BEGIN TIM6_Init 0 */
 
-  /* USER CODE END TIM10_Init 0 */
+  /* USER CODE END TIM6_Init 0 */
 
-  /* USER CODE BEGIN TIM10_Init 1 */
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
 
-  /* USER CODE END TIM10_Init 1 */
-  htim10.Instance = TIM10;
-  htim10.Init.Prescaler = 0;
-  htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim10.Init.Period = 65535;
-  htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim10.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 8400-1;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 200-1;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN TIM10_Init 2 */
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
 
-  /* USER CODE END TIM10_Init 2 */
+  /* USER CODE END TIM6_Init 2 */
 
 }
 
@@ -543,6 +553,12 @@ void StartDefaultTask(void *argument)
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, UInt16),
     "/f446re_enc_cnt_publisher"));
+
+  RCCHECK(rclc_publisher_init_best_effort(
+    &publish_wheel_speed,
+    &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
+    "/f446re_wheel_speed_publisher"));
 
   RCCHECK(rclc_publisher_init_best_effort(
     &publisher_string,
