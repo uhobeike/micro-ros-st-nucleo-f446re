@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Run actions/checkout@v2 
         uses: actions/checkout@v2
+        with:
+          submodule: recursive
       
       - name: Build  micro-ros-st-nucleo-f446re
         run: |
