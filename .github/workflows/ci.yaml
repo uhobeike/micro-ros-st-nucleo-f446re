@@ -21,7 +21,6 @@ jobs:
       - name: Run actions/checkout@v2 
         uses: actions/checkout@v2
       
-    steps:
       - name: Build  micro-ros-st-nucleo-f446re
         run: |
           docker pull microros/micro_ros_static_library_builder:galactic && docker run --rm -v $(pwd)/Debug/../:/project --env MICROROS_LIBRARY_FOLDER=micro_ros_stm32cubemx_utils/microros_static_library_ide microros/micro_ros_static_library_builder:galactic
