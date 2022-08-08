@@ -80,8 +80,8 @@ all:
 main-build: micro-ros-st-nucleo-f446re.elf secondary-outputs
 
 # Tool invocations
-micro-ros-st-nucleo-f446re.elf micro-ros-st-nucleo-f446re.map: $(OBJS) $(USER_OBJS) /home/ikebe/STM32CubeIDE/workspace_1.9.0/micro-ros-st-nucleo-f446re/STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "micro-ros-st-nucleo-f446re.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/ikebe/STM32CubeIDE/workspace_1.9.0/micro-ros-st-nucleo-f446re/STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="micro-ros-st-nucleo-f446re.map" -Wl,--gc-sections -static -L"/home/ikebe/STM32CubeIDE/workspace_1.9.0/micro-ros-st-nucleo-f446re/Debug/../micro_ros_stm32cubemx_utils/microros_static_library_ide/libmicroros" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+micro-ros-st-nucleo-f446re.elf micro-ros-st-nucleo-f446re.map: $(OBJS) $(USER_OBJS) $(shell pwd)/../STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "micro-ros-st-nucleo-f446re.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"$(shell pwd)/../STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="micro-ros-st-nucleo-f446re.map" -Wl,--gc-sections -static -L"$(shell pwd)/../micro_ros_stm32cubemx_utils/microros_static_library_ide/libmicroros" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -101,7 +101,7 @@ clean:
 	-@echo ' '
 
 pre-build:
-	docker pull microros/micro_ros_static_library_builder:galactic && docker run --rm -v /home/ikebe/STM32CubeIDE/workspace_1.9.0/micro-ros-st-nucleo-f446re/Debug/../:/project --env MICROROS_LIBRARY_FOLDER=micro_ros_stm32cubemx_utils/microros_static_library_ide microros/micro_ros_static_library_builder:galactic
+	docker pull microros/micro_ros_static_library_builder:galactic && docker run --rm -v $(shell pwd)/../:/project --env MICROROS_LIBRARY_FOLDER=micro_ros_stm32cubemx_utils/microros_static_library_ide microros/micro_ros_static_library_builder:galactic
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

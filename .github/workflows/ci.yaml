@@ -23,9 +23,6 @@ jobs:
         with:
           submodules: recursive
       
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-      
       - name: Build micro-ros-st-nucleo-f446re
         run: |
           sudo apt install -y gcc-arm-none-eabi
