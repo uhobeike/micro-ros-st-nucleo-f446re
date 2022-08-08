@@ -1,0 +1,31 @@
+name:  micro-ros-st-nucleo-f446re-galactic-ci
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+    - '**.md'
+
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run actions/checkout@v2 
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      
+      - name: Build micro-ros-st-nucleo-f446re
+        run: |
+          sudo apt install -y gcc-arm-none-eabi
+
+          cd Debug
+          make all
