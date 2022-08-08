@@ -1,3 +1,5 @@
+[![micro-ros-st-nucleo-f446re-galactic-ci](https://github.com/uhobeike/micro-ros-st-nucleo-f446re/actions/workflows/ci.yaml/badge.svg)](https://github.com/uhobeike/micro-ros-st-nucleo-f446re/actions/workflows/ci.yaml)
+
 ![banner](https://i.gyazo.com/7fa1054f9993bbeda61176813ad7e019.png)
 ![micro-ROS-F446RE](https://user-images.githubusercontent.com/40545422/166133749-ff9056ff-8617-4045-911f-2c666e2cf0cd.gif)
 
