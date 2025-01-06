@@ -142,7 +142,7 @@ ROS2 communication between PC and microcontroller using Docker environment.
 * Execute micro-ROS!
 
 ```
-docker run -it --privileged --net=host --name micro-ros ubeike/micro-ros-agent:galactic
+docker run -it --privileged --net=host --name micro-ros ubeike/micro-ros-agent:humble
 
 # Executed at each terminal.
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0
